@@ -48,6 +48,18 @@ public class DBUtils {
         return null;
     }
 
+    public static User getUserByAccountNumber(String accountNumber) {
+        List<User> usersList = loadData();
+
+        for (User userFromDb : usersList) {
+            if(userFromDb.getAccountNumber().equals(accountNumber)) {
+                return userFromDb;
+            }
+        }
+
+        return null;
+    }
+
     private static List<User> loadData() {
         List<User> result = new ArrayList<>();
 
@@ -78,6 +90,7 @@ public class DBUtils {
 
             for (User user : usersList) {
                 bufferedWriter.write(user.toString());
+                bufferedWriter.newLine();
             }
         } catch (IOException e) {
             e.printStackTrace();

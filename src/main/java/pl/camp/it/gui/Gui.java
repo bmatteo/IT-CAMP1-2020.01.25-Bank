@@ -10,6 +10,33 @@ import pl.camp.it.utils.DBUtils;
 import java.util.Scanner;
 
 public class Gui {
+
+    public static void run() {
+        while (true) {
+            if(DBUtils.currentUser != null) {
+                showLoggedMenu();
+            } else {
+                showMainMenu();
+            }
+        }
+    }
+    public static void showLoggedMenu() {
+        System.out.println("1. Transaction");
+        System.out.println("2. Exit");
+
+        Scanner scanner = new Scanner(System.in);
+
+        switch (scanner.nextLine()) {
+            case "1":
+                showTransaction();
+                break;
+            case "2":
+                System.exit(0);
+            default:
+                break;
+        }
+    }
+
     public static void showMainMenu() {
         System.out.println("1. Register");
         System.out.println("2. Login");
@@ -65,10 +92,36 @@ public class Gui {
 
         User user = DBUtils.getUserByLogin(login);
 
-        if(user.getPass().equals(DigestUtils.md5Hex(pass))) {
+        if(user != null && user.getPass().equals(DigestUtils.md5Hex(pass))) {
             DBUtils.currentUser = user;
         } else {
             System.out.println("Logowanie nieudane !!");
+        }
+    }
+
+    private static void showTransaction() {
+        System.out.println("Account number:");
+        Scanner scanner = new Scanner(System.in);
+
+        String accountNumber = scanner.nextLine();
+
+        System.out.println("Ammount:");
+        Double ammount = scanner.nextDouble();
+
+        if(DBUtils.currentUser.getBalance() >= ammount) {
+            User userToTransfer = DBUtils.getUserByAccountNumber(accountNumber);
+
+            if(userToTransfer != null && !DBUtils.currentUser.getLogin()
+                    .equals(userToTransfer.getLogin())) {
+                DBUtils.currentUser
+                        .setBalance(DBUtils.currentUser.getBalance() - ammount);
+                DBUtils.saveUser(DBUtils.currentUser);
+
+                userToTransfer.setBalance(userToTransfer.getBalance() + ammount);
+                DBUtils.saveUser(userToTransfer);
+            }
+        } else {
+            System.out.println("Brak środków na koncie !!");
         }
     }
 }
