@@ -22,6 +22,7 @@ public class Gui {
                 showRegister();
                 break;
             case "2":
+                showLogin();
                 break;
             case "3":
                 System.exit(0);
@@ -51,5 +52,23 @@ public class Gui {
         }
 
         DBUtils.saveUser(newUser);
+    }
+
+    private static void showLogin() {
+        System.out.println("Your Login:");
+        Scanner scanner = new Scanner(System.in);
+
+        String login = scanner.nextLine();
+
+        System.out.println("Your Password:");
+        String pass = scanner.nextLine();
+
+        User user = DBUtils.getUserByLogin(login);
+
+        if(user.getPass().equals(DigestUtils.md5Hex(pass))) {
+            DBUtils.currentUser = user;
+        } else {
+            System.out.println("Logowanie nieudane !!");
+        }
     }
 }

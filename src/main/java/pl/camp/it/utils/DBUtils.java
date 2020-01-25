@@ -11,6 +11,8 @@ import java.util.List;
 
 public class DBUtils {
 
+    public static User currentUser = null;
+
     private static String dbFilePath =
             "/home/mateusz/ITCamp-Kraków/2020.01.25-context/src/main/resources/baza.txt";
 
@@ -32,6 +34,18 @@ public class DBUtils {
         }
 
         saveData(usersList);
+    }
+
+    public static User getUserByLogin(String login) {
+        List<User> usersList = loadData();
+
+        for (User userFromDb : usersList) {
+            if(userFromDb.getLogin().equals(login)) {
+                return userFromDb;
+            }
+        }
+
+        return null;
     }
 
     private static List<User> loadData() {
