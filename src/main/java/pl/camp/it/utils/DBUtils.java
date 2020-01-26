@@ -1,5 +1,6 @@
 package pl.camp.it.utils;
 
+import org.springframework.stereotype.Component;
 import pl.camp.it.exceptions.AccountNumberMismatchException;
 import pl.camp.it.exceptions.NegativeBalanceException;
 import pl.camp.it.exceptions.UserParseException;
@@ -9,14 +10,11 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DBUtils {
-
-    public static User currentUser = null;
-
-    private static String dbFilePath =
+public class DBUtils extends IDBUtils {
+    private String dbFilePath =
             "/home/mateusz/ITCamp-Kraków/2020.01.25-context/src/main/resources/baza.txt";
 
-    public static void saveUser(User user) {
+    public void saveUser(User user) {
         List<User> usersList = loadData();
         boolean flag = false;
 
@@ -36,7 +34,7 @@ public class DBUtils {
         saveData(usersList);
     }
 
-    public static User getUserByLogin(String login) {
+    public User getUserByLogin(String login) {
         List<User> usersList = loadData();
 
         for (User userFromDb : usersList) {
@@ -48,7 +46,7 @@ public class DBUtils {
         return null;
     }
 
-    public static User getUserByAccountNumber(String accountNumber) {
+    public User getUserByAccountNumber(String accountNumber) {
         List<User> usersList = loadData();
 
         for (User userFromDb : usersList) {
@@ -60,7 +58,7 @@ public class DBUtils {
         return null;
     }
 
-    private static List<User> loadData() {
+    private List<User> loadData() {
         List<User> result = new ArrayList<>();
 
         try (BufferedReader bufferedReader =
@@ -85,7 +83,7 @@ public class DBUtils {
         }
     }
 
-    public static void saveData(List<User> usersList) {
+    private void saveData(List<User> usersList) {
         try (BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(dbFilePath))) {
 
             for (User user : usersList) {
@@ -97,7 +95,7 @@ public class DBUtils {
         }
     }
 
-    private static User convertDBLineToObject(String dbLine) throws UserParseException {
+    private User convertDBLineToObject(String dbLine) throws UserParseException {
         String[] fields = dbLine.split(";");
 
         User user = new User();

@@ -1,26 +1,30 @@
 package pl.camp.it.gui;
 
-import org.apache.commons.codec.digest.DigestUtils;
-import pl.camp.it.exceptions.AccountNumberMismatchException;
-import pl.camp.it.exceptions.NegativeBalanceException;
-import pl.camp.it.model.User;
-import pl.camp.it.utils.AccountNumberUtils;
-import pl.camp.it.utils.DBUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import pl.camp.it.logic.ILogic;
+import pl.camp.it.utils.IDBUtils;
 
 import java.util.Scanner;
 
+@Component
 public class Gui {
 
-    public static void run() {
+    @Autowired
+    ILogic service;
+    @Autowired
+    IDBUtils dbUtils;
+
+    public void run() {
         while (true) {
-            if(DBUtils.currentUser != null) {
+            if(dbUtils.currentUser != null) {
                 showLoggedMenu();
             } else {
                 showMainMenu();
             }
         }
     }
-    public static void showLoggedMenu() {
+    public void showLoggedMenu() {
         System.out.println("1. Transaction");
         System.out.println("2. Exit");
 
@@ -37,7 +41,7 @@ public class Gui {
         }
     }
 
-    public static void showMainMenu() {
+    public void showMainMenu() {
         System.out.println("1. Register");
         System.out.println("2. Login");
         System.out.println("3. Exit");
@@ -58,7 +62,7 @@ public class Gui {
         }
     }
 
-    public static void showRegister() {
+    public void showRegister() {
         System.out.println("Your Login:");
         Scanner scanner = new Scanner(System.in);
 
@@ -67,21 +71,10 @@ public class Gui {
         System.out.println("Your Password:");
         String pass = scanner.nextLine();
 
-        User newUser = new User();
-
-        newUser.setLogin(login);
-        newUser.setPass(DigestUtils.md5Hex(pass));
-        try {
-            newUser.setAccountNumber(AccountNumberUtils.generateAccountNumber());
-            newUser.setBalance(0.0);
-        } catch (AccountNumberMismatchException | NegativeBalanceException e) {
-            System.out.println("Application critical error !!");
-        }
-
-        DBUtils.saveUser(newUser);
+        service.registerUser(login, pass);
     }
 
-    private static void showLogin() {
+    private void showLogin() {
         System.out.println("Your Login:");
         Scanner scanner = new Scanner(System.in);
 
@@ -90,16 +83,12 @@ public class Gui {
         System.out.println("Your Password:");
         String pass = scanner.nextLine();
 
-        User user = DBUtils.getUserByLogin(login);
-
-        if(user != null && user.getPass().equals(DigestUtils.md5Hex(pass))) {
-            DBUtils.currentUser = user;
-        } else {
+        if(!service.login(login, pass)){
             System.out.println("Logowanie nieudane !!");
         }
     }
 
-    private static void showTransaction() {
+    private void showTransaction() {
         System.out.println("Account number:");
         Scanner scanner = new Scanner(System.in);
 
@@ -108,20 +97,10 @@ public class Gui {
         System.out.println("Ammount:");
         Double ammount = scanner.nextDouble();
 
-        if(DBUtils.currentUser.getBalance() >= ammount) {
-            User userToTransfer = DBUtils.getUserByAccountNumber(accountNumber);
-
-            if(userToTransfer != null && !DBUtils.currentUser.getLogin()
-                    .equals(userToTransfer.getLogin())) {
-                DBUtils.currentUser
-                        .setBalance(DBUtils.currentUser.getBalance() - ammount);
-                DBUtils.saveUser(DBUtils.currentUser);
-
-                userToTransfer.setBalance(userToTransfer.getBalance() + ammount);
-                DBUtils.saveUser(userToTransfer);
-            }
+        if(service.makeTransaction(accountNumber, ammount)) {
+            System.out.println("Transakcja wykonana !");
         } else {
-            System.out.println("Brak środków na koncie !!");
+            System.out.println("Błąd transakcji !");
         }
     }
 }
