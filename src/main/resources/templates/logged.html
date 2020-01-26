@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+Witaj <p th:text="${login}"></p>
+
+<th:block th:each="mojString : ${listaStringow}">
+    <p th:text="${mojString}"></p>
+</th:block>
+
+</body>
+</html>

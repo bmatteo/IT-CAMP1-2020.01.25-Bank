@@ -7,7 +7,6 @@ import pl.camp.it.utils.IDBUtils;
 
 import java.util.Scanner;
 
-@Component
 public class Gui {
 
     @Autowired

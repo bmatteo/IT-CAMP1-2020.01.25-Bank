@@ -10,6 +10,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
 public class DBUtils extends IDBUtils {
     private String dbFilePath =
             "/home/mateusz/ITCamp-Kraków/2020.01.25-context/src/main/resources/baza.txt";
